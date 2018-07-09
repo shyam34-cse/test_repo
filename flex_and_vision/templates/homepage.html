@@ -1,0 +1,127 @@
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script>
+var image1Json=
+	[{"Type": "PAN"}, {"Name": "D MANIKANDAN"}, {"Father Name": "DURAISAMY"}, {"DOB": "16/07/1986"}, {"PAN": "BNZPM2501F"}];
+	
+var image2Json=
+[{"Type": "AADHAAR"}, {"Name": "Abhishek Kumar"}, {"Father Name": ""}, {"DOB": " 25/01/1987"}, {"AADHAAR": "4045 5845 4306"}];
+
+function processImage(element){ 
+ var id=element.id;
+ console.log('id -- '+id);
+ switch (id){
+ 	case 'image1':
+      $('#'+id+'_output').html(JSON.stringify(image1Json));
+      break;
+    case 'image2':
+       $('#'+id+'_output').html(JSON.stringify(image2Json));
+      break;
+    default:
+       alert('none');
+ }
+   
+}
+
+$(document).ready(function () {
+
+    $("#btnSubmit").click(function (event) {
+    	 event.preventDefault();
+    	  var form = $('#fileUploadForm')[0];
+	 
+	 	var data = new FormData(form);
+	   // var fileVal= $('#uploadFileId').val();
+	    var filename = $('input[type=file]').val().split('\\').pop();
+	   
+	     $("#btnSubmit").prop("disabled", true);
+	    console.log(">>>>>>>>>>>>>>>>>>>>>>>> ajax >>>>>>>>>>>>>>>>>>>>>>>>>>>>"); 
+	    console.log(data);
+	    try{
+	    	 $.ajax({
+	    	 	type :'POST',
+        		url: '/upload_photo', 
+        		enctype: 'multipart/form-data',
+        		data : data,
+        		processData: false,
+	            contentType: false,
+	            cache: false,
+	            timeout: 600000,
+       	 		success: function(result){
+	        		console.log(result);
+	           		var newDiv='';
+	           		newDiv= newDiv+ '<div style="width: 100%; float: left; margin-top: 1%;"> '+
+			           		'<div style="position: relative;height: 54%;float: left;">'+
+			           		'<img src="https://storage.googleapis.com/ml-demo-203511/'+filename+'" alt="adhs" width="200" height="200">'+
+			           		'</div><div style="position: relative;float: left;margin: 10px;">'+
+			           		'<button  id="image" onclick="processImage(this)">Process</button>'+
+			           		'</div> <div style="position: relative;float: left;">'+
+			           		'<textarea id="image_output" rows="6" cols="50">'+ result +'</textarea>'+
+			           		'</div></div>';
+	           		 
+	           		  //var txt = $("<div></div>").text(newDiv);
+	           		 //$("#dataUploadDiv").prepend(newDiv);  
+	           		 $('#rseultDiv').html(newDiv);
+	           		 $("#btnSubmit").prop("disabled", false);
+	           		 document.getElementById("fileUploadForm").reset();
+	           		 
+        		},
+        	  error: function (e) {
+	                console.log("ERROR : ", e);
+	                 alert(e.responseText);
+	                $("#btnSubmit").prop("disabled", false);
+
+            	}
+            });        
+	    }catch(err){
+	    	console.log(err);
+	    	 $("#btnSubmit").prop("disabled", false);
+	    }
+       
+        
+    	 
+	});
+	
+});
+
+</script>
+</head>
+
+  <body>
+  	<h1>ID Scanner</h1>
+
+  	<div style="width: 100%; float: left; margin-top: 1%;">  	
+  	 <div style="position: relative;height: 54%;float: left;">
+  	  <img src="https://storage.googleapis.com/ml-demo-203511/PAN_Sample.jpg" alt="pans" width="200" height="200">
+  	 </div>
+  	  <div style="position: relative;float: left;margin: 10px;">
+  	  <button  id="image1" onclick="processImage(this)">Process</button>
+  	 </div>
+  	  <div style="position: relative;float: left;">
+  		 <textarea id="image1_output" rows="6" cols="50">Print your output here</textarea>
+  	  </div>
+  
+  	</div>
+  	
+  	<div style="width: 100%; float: left; margin-top: 1%;">  	
+  	 <div style="position: relative;height: 54%;float: left;">
+  	  <img src="https://storage.googleapis.com/ml-demo-203511/Adhaar_Sample.png" alt="adhs" width="200" height="200">
+  	 </div>
+  	  <div style="position: relative;float: left;margin: 10px;">
+  	  <button  id="image2" onclick="processImage(this)">Process</button>
+  	 </div>
+  	  <div style="position: relative;float: left;">
+  		 <textarea id="image2_output" rows="6" cols="50">Print your output here</textarea>
+  	  </div>
+  
+  	</div>
+  	<div id="rseultDiv"></div>
+  	
+  	<div id="dataUploadDiv" style="width: 100%; float: left; margin-top: 5px;">
+       <form id="fileUploadForm" enctype="multipart/form-data"  method="POST">
+	       Upload Scanned ID to Process: <input id="uploadFileId" type="file" name="file" accept="image/*" /> &nbsp
+           <input type="button" value="Process" id="btnSubmit"/>
+       </form>   		
+    </div>
+  </body>
+</html> 
